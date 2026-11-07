@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ScreenText OCR | Offline text recognition for Windows</title>
+<meta name="description" content="ScreenText OCR captures a screen region or opens an image and extracts text with a local Tesseract 5 on Windows 10 and 11. Offline, no telemetry, MIT license.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0b1526">
+<link rel="icon" href="logo.png" type="image/png">
+<link rel="canonical" href="https://golyb0u.github.io/ScreenText-OCR/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ScreenText OCR">
+<meta property="og:title" content="ScreenText OCR | Offline text recognition for Windows">
+<meta property="og:description" content="Capture a screen region or open an image, and extract text with a local Tesseract 5. Offline, no telemetry, MIT license.">
+<meta property="og:url" content="https://golyb0u.github.io/ScreenText-OCR/">
+<meta property="og:image" content="https://golyb0u.github.io/ScreenText-OCR/social-preview.png">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="640">
+<meta property="og:image:alt" content="ScreenText OCR running on Windows with the English interface, next to the product name and the line Screen region to text, offline.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ScreenText OCR | Offline text recognition for Windows">
+<meta name="twitter:description" content="Capture a screen region or open an image, and extract text with a local Tesseract 5. Offline, no telemetry, MIT license.">
+<meta name="twitter:image" content="https://golyb0u.github.io/ScreenText-OCR/social-preview.png">
+<style>
+  :root {
+    --bg: #0b1526;
+    --bg-deep: #081020;
+    --bg-mid: #0d1f36;
+    --surface: #122543;
+    --surface-strong: #173a5c;
+    --border: #243f66;
+    --border-soft: #1d3355;
+    --text: #e8f0fc;
+    --muted: #a9bcd8;
+    --accent: #2f7cf6;
+    --accent-strong: #1a6be0;
+    --accent-soft: #8fbcff;
+    --accent-pale: #cfe0f7;
+    --max: 1120px;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--text);
+    background:
+      radial-gradient(900px 480px at 50% -140px, rgba(47, 124, 246, 0.2), transparent 72%),
+      linear-gradient(180deg, var(--bg) 0%, var(--bg-mid) 52%, var(--bg) 100%);
+    background-color: var(--bg);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  h1,
+  h2,
+  h3 {
+    line-height: 1.2;
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  a {
+    color: var(--accent-soft);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+  }
+
+  a:hover {
+    color: #d5e6ff;
+  }
+
+  :focus-visible {
+    outline: 3px solid #9ec5ff;
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  .skip-link {
+    position: absolute;
+    left: 16px;
+    top: -80px;
+    z-index: 10;
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: var(--accent-strong);
+    color: #ffffff;
+    font-weight: 600;
+    text-decoration: none;
+    transition: top 150ms ease;
+  }
+
+  .skip-link:focus {
+    top: 16px;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .hero {
+    padding: clamp(56px, 9vw, 104px) 0 40px;
+    text-align: center;
+  }
+
+  .hero-logo {
+    width: 104px;
+    height: 104px;
+    display: block;
+    margin: 0 auto 22px;
+    border-radius: 24px;
+    border: 1px solid #243f66;
+    box-shadow: 0 18px 48px rgba(2, 8, 20, 0.55);
+  }
+
+  .hero h1 {
+    font-size: clamp(2.15rem, 5.2vw, 3.6rem);
+    letter-spacing: -0.025em;
+  }
+
+  .pitch {
+    max-width: 660px;
+    margin: 20px auto 0;
+    font-size: clamp(1.05rem, 1.7vw, 1.22rem);
+    color: var(--muted);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 32px;
+  }
+
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 50px;
+    padding: 12px 24px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    font: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+  }
+
+  .button svg {
+    flex: none;
+    width: 19px;
+    height: 19px;
+  }
+
+  .button-primary {
+    background: var(--accent-strong);
+    border-color: var(--accent-strong);
+    color: #ffffff;
+  }
+
+  .button-primary:hover {
+    background: #1f6fe5;
+    border-color: #1f6fe5;
+    color: #ffffff;
+  }
+
+  .button-secondary {
+    background: rgba(18, 37, 67, 0.6);
+    border-color: #35527c;
+    color: var(--text);
+  }
+
+  .button-secondary:hover {
+    background: #173a5c;
+    border-color: #4a6d9c;
+    color: #ffffff;
+  }
+
+  .hero-note {
+    margin-top: 18px;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+
+  .section {
+    padding: 44px 0;
+  }
+
+  .section h2 {
+    font-size: clamp(1.55rem, 3vw, 2rem);
+  }
+
+  .section-lead {
+    margin-top: 10px;
+    max-width: 680px;
+    color: var(--muted);
+  }
+
+  .demo {
+    padding-top: 24px;
+  }
+
+  .demo figure {
+    margin: 24px 0 0;
+  }
+
+  .demo img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+    box-shadow: 0 24px 60px rgba(2, 8, 20, 0.5);
+  }
+
+  figcaption {
+    margin-top: 12px;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+
+  .features {
+    list-style: none;
+    margin: 24px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .features li {
+    padding: 22px;
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    background: rgba(18, 37, 67, 0.72);
+  }
+
+  .features h3 {
+    font-size: 1.05rem;
+    color: var(--accent-pale);
+  }
+
+  .features p {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 0.97rem;
+  }
+
+  .gallery {
+    margin: 24px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .gallery figure {
+    margin: 0;
+  }
+
+  .gallery img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface-strong);
+  }
+
+  .gallery figcaption {
+    margin-top: 10px;
+    font-size: 0.88rem;
+  }
+
+  .how ol {
+    list-style: none;
+    counter-reset: step;
+    margin: 24px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .how li {
+    position: relative;
+    padding: 20px 18px;
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    background: rgba(18, 37, 67, 0.55);
+    color: var(--muted);
+    font-size: 0.96rem;
+  }
+
+  .how li::before {
+    counter-increment: step;
+    content: counter(step);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    margin-bottom: 14px;
+    border-radius: 50%;
+    background: rgba(47, 124, 246, 0.18);
+    border: 1px solid #3f6da8;
+    color: var(--accent-pale);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  .how strong {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--text);
+    font-weight: 600;
+    font-size: 1rem;
+  }
+
+  .faq-list {
+    margin-top: 24px;
+    max-width: 820px;
+  }
+
+  details {
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    background: rgba(18, 37, 67, 0.6);
+  }
+
+  details + details {
+    margin-top: 10px;
+  }
+
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 20px;
+    cursor: pointer;
+    font-weight: 600;
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary::after {
+    content: "+";
+    flex: none;
+    width: 24px;
+    text-align: center;
+    color: var(--accent-soft);
+    font-size: 1.4rem;
+    font-weight: 400;
+    line-height: 1;
+  }
+
+  details[open] summary::after {
+    content: "\2212";
+  }
+
+  details p {
+    padding: 0 20px 18px;
+    color: var(--muted);
+    font-size: 0.97rem;
+  }
+
+  .ru-summary {
+    margin-top: 16px;
+    padding: 26px;
+    border: 1px solid var(--border-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 12px;
+    background: rgba(18, 37, 67, 0.55);
+  }
+
+  .ru-summary h2 {
+    font-size: 1.22rem;
+    letter-spacing: 0;
+  }
+
+  .ru-summary p {
+    margin-top: 10px;
+    max-width: 820px;
+    color: var(--muted);
+    font-size: 0.97rem;
+  }
+
+  footer {
+    margin-top: 36px;
+    border-top: 1px solid var(--border-soft);
+    padding: 28px 0 40px;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+
+  .footer-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 24px;
+  }
+
+  footer p {
+    margin: 0;
+  }
+
+  @media (max-width: 860px) {
+    .gallery,
+    .how ol {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 620px) {
+    body {
+      font-size: 16px;
+    }
+
+    .wrap {
+      padding: 0 18px;
+    }
+
+    .features,
+    .gallery,
+    .how ol {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .button {
+      width: 100%;
+    }
+
+    .section {
+      padding: 34px 0;
+    }
+
+    .ru-summary {
+      padding: 20px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    .skip-link,
+    .button {
+      transition: none;
+    }
+  }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="hero">
+  <div class="wrap">
+    <img class="hero-logo" src="logo.png" width="512" height="512" alt="ScreenText OCR logo: nine blue squares in a grid on a dark navy rounded tile.">
+    <h1>ScreenText OCR</h1>
+    <p class="pitch">Capture a screen region or open an image, and extract the text with Tesseract 5 on your own PC.</p>
+    <div class="actions">
+      <a class="button button-primary" href="https://github.com/Golyb0u/ScreenText-OCR/releases/latest">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v12"></path>
+          <path d="m7 10 5 5 5-5"></path>
+          <path d="M5 21h14"></path>
+        </svg>
+        Download for Windows
+      </a>
+      <a class="button button-secondary" href="https://github.com/Golyb0u/ScreenText-OCR">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="currentColor">
+          <path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.43-2.69 5.41-5.25 5.69.41.36.78 1.06.78 2.14 0 1.55-.01 2.79-.01 3.17 0 .31.21.68.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z"></path>
+        </svg>
+        View on GitHub
+      </a>
+    </div>
+    <p class="hero-note">Version 2.2.0. Windows 10 and 11. Portable exe, about 100 MB.</p>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+  <section class="section demo" aria-labelledby="demo-title">
+    <div class="wrap">
+      <h2 id="demo-title">Demo</h2>
+      <p class="section-lead">A short recording of a capture and an OCR run.</p>
+      <figure>
+        <img src="demo.gif" width="1120" height="698" alt="Screen recording of ScreenText OCR: a region is selected, captured, processed, and the recognized text is copied.">
+        <figcaption>Select a region, capture the frame, run OCR and copy the text.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="features-title">
+    <div class="wrap">
+      <h2 id="features-title">What it does</h2>
+      <ul class="features">
+        <li>
+          <h3>Screen capture</h3>
+          <p>Captures a rectangle on screen or opens a PNG or JPG file. The saved region can be reused.</p>
+        </li>
+        <li>
+          <h3>Local OCR</h3>
+          <p>Uses Tesseract 5 installed on the same PC. Russian and English language data are supported.</p>
+        </li>
+        <li>
+          <h3>Text preview</h3>
+          <p>Shows the source image, the processed image and the recognized text in one window, with timing.</p>
+        </li>
+        <li>
+          <h3>Copy or save</h3>
+          <p>Copies the result to the clipboard or saves it as a .txt file. No account or API key is needed.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="screenshots-title">
+    <div class="wrap">
+      <h2 id="screenshots-title">Screenshots</h2>
+      <p class="section-lead">The app has a dark theme and a light theme, with a Russian and an English interface.</p>
+      <div class="gallery">
+        <figure>
+          <img src="screenshots/01-dark-ru.png" width="1600" height="950" loading="lazy" alt="ScreenText OCR in dark theme with the Russian interface: capture settings on the left, source and processed previews in the middle, recognized text below.">
+          <figcaption>Dark theme, Russian interface.</figcaption>
+        </figure>
+        <figure>
+          <img src="screenshots/02-dark-en.png" width="1600" height="950" loading="lazy" alt="ScreenText OCR in dark theme with the English interface: capture settings, source and processed previews, and the recognized text pane.">
+          <figcaption>Dark theme, English interface.</figcaption>
+        </figure>
+        <figure>
+          <img src="screenshots/03-light.png" width="1600" height="950" loading="lazy" alt="ScreenText OCR in light theme: preset and recognition settings on the left, previews in the middle, recognized text below.">
+          <figcaption>Light theme.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="section how" aria-labelledby="how-title">
+    <div class="wrap">
+      <h2 id="how-title">How it works</h2>
+      <ol>
+        <li>
+          <strong>Select region</strong>
+          Choose a rectangle on screen, or open an image file.
+        </li>
+        <li>
+          <strong>Capture</strong>
+          Capture the frame. The preview shows the exact area.
+        </li>
+        <li>
+          <strong>OCR</strong>
+          Run Tesseract 5 and pick the language for the text.
+        </li>
+        <li>
+          <strong>Copy</strong>
+          Copy the text to the clipboard or save it as a .txt file.
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="faq-title">
+    <div class="wrap">
+      <h2 id="faq-title">FAQ</h2>
+      <div class="faq-list">
+        <details>
+          <summary>Does it need internet?</summary>
+          <p>No. The app works offline. Tesseract and the language data are already on your PC.</p>
+        </details>
+        <details>
+          <summary>Does it send data anywhere?</summary>
+          <p>No. There is no telemetry, no account and no API keys. Screen captures and recognized text stay on your machine.</p>
+        </details>
+        <details>
+          <summary>What do I need installed?</summary>
+          <p>Windows 10 or 11 and Tesseract 5 with the language data you plan to use. The app can find Tesseract on PATH, or you can set the paths in the app.</p>
+        </details>
+        <details>
+          <summary>Is it free?</summary>
+          <p>Yes. ScreenText OCR is open source under the MIT license. The portable exe is in GitHub Releases.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="ru-title">
+    <div class="wrap">
+      <div class="ru-summary" lang="ru">
+        <h2 id="ru-title">Коротко о программе</h2>
+        <p>ScreenText OCR распознаёт текст с выбранной области экрана или из файла изображения. Программа работает локально через установленный Tesseract 5 и не отправляет данные в сеть. Интерфейс поддерживает русский и английский языки, есть тёмная и светлая темы. Приложение бесплатное, распространяется по лицензии MIT, текущая версия 2.2.0.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap footer-inner">
+    <p>ScreenText OCR 2.2.0. MIT license.</p>
+    <p><a href="https://github.com/Golyb0u/ScreenText-OCR">GitHub repository</a></p>
+  </div>
+</footer>
+</body>
+</html>

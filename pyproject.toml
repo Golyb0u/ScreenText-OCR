@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "screentext-ocr"
+version = "2.2.0"
+description = "Offline screen OCR for Windows: capture any screen region or screenshot and get clean text on your clipboard, powered by Tesseract 5 (RU/EN UI)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Golyb0u" }]
+keywords = [
+    "ocr",
+    "tesseract",
+    "pyqt5",
+    "screen-ocr",
+    "screenshot-to-text",
+    "text-extraction",
+    "clipboard",
+    "offline",
+    "privacy",
+    "windows",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Win32 (MS Windows)",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: Microsoft :: Windows :: Windows 10",
+    "Operating System :: Microsoft :: Windows :: Windows 11",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Graphics :: Capture :: Screen Capture",
+    "Topic :: Text Processing :: Linguistic",
+]
+dependencies = [
+    "PyQt5>=5.15",
+    "numpy>=1.24",
+    "opencv-python>=4.8",
+    "pytesseract>=0.3.10",
+    "mss>=9.0",
+]
+
+[project.urls]
+Homepage = "https://golyb0u.github.io/ScreenText-OCR/"
+Repository = "https://github.com/Golyb0u/ScreenText-OCR"
+Issues = "https://github.com/Golyb0u/ScreenText-OCR/issues"
+Changelog = "https://github.com/Golyb0u/ScreenText-OCR/blob/main/CHANGELOG.md"
+
+[project.scripts]
+screentext-ocr = "screentext_ocr.app:main"
+
+[project.gui-scripts]
+screentext-ocr-gui = "screentext_ocr.app:main"
+
+[tool.setuptools.packages.find]
+include = ["screentext_ocr*"]

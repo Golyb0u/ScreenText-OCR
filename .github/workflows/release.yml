@@ -1,0 +1,89 @@
+name: Release
+
+# Builds the Windows executable and publishes it as a GitHub release.
+# A push of a vX.Y.Z tag is the normal trigger. workflow_dispatch exists so an
+# existing tag can be rebuilt without deleting and re-pushing it.
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to build and publish, for example v2.2.0"
+        required: true
+
+jobs:
+  build:
+    name: Build Windows executable
+    runs-on: windows-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    env:
+      QT_QPA_PLATFORM: offscreen
+      # Tag push uses the pushed ref; a manual run supplies the tag explicitly.
+      RELEASE_TAG: ${{ github.event.inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install -r requirements.txt
+          python -m pip install pyinstaller
+
+      - name: Build executable
+        run: python -m PyInstaller --noconfirm --clean ScreenTextOCR.spec
+
+      - name: Package release asset
+        shell: pwsh
+        run: |
+          Compress-Archive -Path dist/ScreenTextOCR.exe, configs -DestinationPath dist/ScreenTextOCR-windows.zip -Force
+
+      # Take only the section of CHANGELOG.md that belongs to this tag, so the
+      # release body does not repeat every older release.
+      - name: Extract release notes from CHANGELOG.md
+        shell: pwsh
+        run: |
+          $tag = $env:RELEASE_TAG
+          $version = $tag -replace '^v', ''
+          $lines = Get-Content -Path CHANGELOG.md
+          $start = -1
+          for ($i = 0; $i -lt $lines.Count; $i++) {
+            if ($lines[$i] -match "^## \[$([regex]::Escape($version))\]") {
+              $start = $i
+              break
+            }
+          }
+          if ($start -lt 0) {
+            Write-Host "No '## [$version]' section found; using a one-line body."
+            "Release $tag - see CHANGELOG.md for details." | Set-Content -Path release-notes.md -Encoding utf8
+          } else {
+            $block = @()
+            for ($i = $start; $i -lt $lines.Count; $i++) {
+              if ($i -gt $start -and $lines[$i] -match '^## \[') { break }
+              $block += $lines[$i]
+            }
+            (($block -join "`n").Trim() + "`n") | Set-Content -Path release-notes.md -Encoding utf8
+          }
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          files: |
+            dist/ScreenTextOCR-windows.zip
+            dist/ScreenTextOCR.exe
+          body_path: release-notes.md
+          fail_on_unmatched_files: true
+          generate_release_notes: false
+          # Keep an already published and verified asset instead of replacing it.
+          overwrite_files: false

@@ -1,0 +1,89 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+cover/
+*.cover
+*.lcov
+
+# Virtual environments
+.venv/
+venv/
+venv.bak/
+.tox/
+env/
+ENV/
+.env
+.env.*
+!.env.example
+.envrc
+
+# Build artifacts
+# The exe/ZIP are published as GitHub Release assets (2 GB limit), not committed:
+# repository/browser uploads are limited to 100 MB / 25 MB per file.
+build/
+dist/
+*.egg-info/
+*.egg
+*.zip
+*.whl
+wheels/
+sdist/
+develop-eggs/
+eggs/
+.installed.cfg
+
+# Local settings and logs
+# Runtime-only output at the repo root; nested .qss/.ini/.cfg stay trackable.
+*.log
+/*.qss
+ocr-result.txt
+activity-log.csv
+/*.ini
+/*.cfg
+*.out
+local_settings.py
+.pypirc
+
+# Local secrets and machine-specific overrides
+secrets.json
+*.local.json
+*.local.toml
+.streamlit/secrets.toml
+
+# Editors / OS
+.idea/
+.vscode/
+.spyderproject
+.spyproject
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+tempCodeRunnerFile.py
+*~
+*.orig
+*.bak
+*.rej
+
+# Scratch / experiments
+# Throwaway probe scripts must live outside the tracked tree or stay ignored.
+*_probe.py
+*_scratch.py
+
+# User-generated OCR profiles (contain local paths and screen coordinates)
+configs/*.json
+!configs/default.json
+
+# PyInstaller output that may land outside dist/
+*.exe
